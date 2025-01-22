@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 
 from user.renderers import UserRenderer
 from user.serializers import UserRegistrationSerializer, UserLoginSerializer, UserProfileViewSerializer, \
-    UserChangePasswordSerializer
+    UserChangePasswordSerializer, SendResetPasswordEmailSerializer, UserPasswordResetSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
@@ -65,3 +65,21 @@ class UserChangePasswordView(APIView):
         serializer = UserChangePasswordSerializer(data=request.data, context={'user': request.user})
         serializer.is_valid(raise_exception=True)
         return Response({'msg': 'Password changed successfully'}, status=status.HTTP_200_OK)
+
+
+class SendResetPasswordEmailView(APIView):
+    renderer_classes = [UserRenderer]
+
+    def post(self, request):
+        serializer = SendResetPasswordEmailSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response({'msg': 'Reset password link sent to your email. Please check your email'}, status=status.HTTP_200_OK)
+
+
+class UserPasswordResetView(APIView):
+    renderer_classes = [UserRenderer]
+
+    def post(self, request, uid, token):
+        serializer = UserPasswordResetSerializer(data=request.data, context={'uid': uid, 'token': token})
+        serializer.is_valid(raise_exception=True)
+        return Response({'msg': 'Password reset successful'}, status=status.HTTP_200_OK)
